@@ -5,12 +5,12 @@ from sklearn.model_selection import train_test_split
 
 class NaiveBayesClassifier:
 
-    def __init__(self, data, alpha = 1):
+    def __init__(self, data):
         self.data = pd.read_csv(data)
 
-        self.alpha = alpha
-
         self.classes = self.data['target'].unique()
+        self.class_words = {}
+
         self.train_data, self.test_data = train_test_split(self.data, test_size = 0.2, random_state = 1)
 
         self.vocabulary = set([])
@@ -18,9 +18,8 @@ class NaiveBayesClassifier:
         self.loglikelihood = {}
 
         
-    def train(self):
+    def pretrain(self):
         class_docs = defaultdict(list)
-        class_words = {}
 
         for _, row in self.train_data.iterrows():
             class_docs[row['target']].append(row['text'])
@@ -29,14 +28,15 @@ class NaiveBayesClassifier:
 
         for c, d in class_docs.items():
             self.logprior[c] = math.log(len(d)/n_docs)
-            class_words[c] = [word for doc in d for word in doc.split() if '@' not in word and 'http' not in word]
+            self.class_words[c] = [word for doc in d for word in doc.split() if '@' not in word and 'http' not in word]
 
-            for word in class_words[c]:
+            for word in self.class_words[c]:
                 self.vocabulary.add(word)
-        
+    
+    def train(self, alpha):
         for word in self.vocabulary:
-            for c, c_words in class_words.items():
-                self.loglikelihood[(word, c)] = math.log((c_words.count(word) + self.alpha)/(len(c_words) + self.alpha * len(self.vocabulary)))
+            for c, c_words in self.class_words.items():
+                self.loglikelihood[(word, c)] = math.log((c_words.count(word) + alpha)/(len(c_words) + alpha * len(self.vocabulary)))
                 
         
     def score(self, doc, c):
