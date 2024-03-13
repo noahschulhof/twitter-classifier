@@ -33,6 +33,7 @@ class NaiveBayesClassifier:
             for word in self.class_words[c]:
                 self.vocabulary.add(word)
     
+    
     def train(self, alpha):
         for word in self.vocabulary:
             for c, c_words in self.class_words.items():
