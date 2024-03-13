@@ -1,0 +1,56 @@
+```{r}
+library(tidyverse)
+library(ggpattern)
+
+data <- read.csv('scores.csv')
+```
+
+```{r}
+data %>%
+  mutate(Model = factor(Model,
+                        levels = data %>%
+                          group_by(Model) %>%
+                          summarize(max_score = max(Score)) %>% 
+                          arrange(desc(max_score)) %>% 
+                          pull(Model)),
+         Metric = factor(Metric,
+                         levels = c(' Accuracy',
+                                    ' Precision',
+                                    ' Recall',
+                                    ' F1'))) %>% 
+  ggplot(aes(Model,
+             Score,
+             fill = fct_rev(Subset),
+             label = Score)) +
+  geom_col(alpha = 0.9,
+           color = 'black',
+           position = position_dodge()) +
+  geom_text(position = position_dodge(width = 0.9),
+            fontface = 'bold',
+            size = 3.25,
+            vjust = 1.4) +
+  scale_fill_brewer(palette = 'Set1') +
+  facet_wrap(~Metric,
+             ncol = 1) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = -45,
+                                   face = 'bold'),
+        strip.text = element_text(face = 'bold'),
+        strip.background = element_rect(fill = 'grey90'),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.direction = 'horizontal',
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1,
+                               'lines')) +
+  labs(title = 'Evaluation Scores by Metric, Model,\nand Subset',
+       y = 'Score (%)',
+       fill = 'Subset')
+
+ggsave('scores.png',
+       bg = 'white',
+       width = 4,
+       height = 7,
+       units = 'in')
+```
