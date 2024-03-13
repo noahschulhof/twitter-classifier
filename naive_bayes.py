@@ -5,8 +5,10 @@ from sklearn.model_selection import train_test_split
 
 class NaiveBayesClassifier:
 
-    def __init__(self, data):
+    def __init__(self, data, alpha = 1):
         self.data = pd.read_csv(data)
+
+        self.alpha = alpha
 
         self.classes = self.data['target'].unique()
         self.train_data, self.test_data = train_test_split(self.data, test_size = 0.2, random_state = 1)
@@ -19,7 +21,6 @@ class NaiveBayesClassifier:
     def train(self):
         class_docs = defaultdict(list)
         class_words = {}
-        word_counts = defaultdict(int)
 
         for _, row in self.train_data.iterrows():
             class_docs[row['target']].append(row['text'])
@@ -32,11 +33,10 @@ class NaiveBayesClassifier:
 
             for word in class_words[c]:
                 self.vocabulary.add(word)
-                word_counts[word] += 1
         
         for word in self.vocabulary:
             for c, c_words in class_words.items():
-                self.loglikelihood[(word, c)] = math.log((c_words.count(word) + 1)/(len(c_words) + len(self.vocabulary)))
+                self.loglikelihood[(word, c)] = math.log((c_words.count(word) + self.alpha)/(len(c_words) + self.alpha * len(self.vocabulary)))
                 
         
     def score(self, doc, c):
@@ -49,5 +49,8 @@ class NaiveBayesClassifier:
         return max(class_scores, key = class_scores.get)
     
 
-    def predict(self):
-        return self.test_data['text'].apply(lambda x: self.predict_doc(x))
+    def predict(self, subset = 'test'):
+        if subset == 'test':
+            return self.test_data['text'].apply(lambda x: self.predict_doc(x))
+        
+        return self.train_data['text'].apply(lambda x: self.predict_doc(x))
