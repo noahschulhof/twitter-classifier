@@ -51,6 +51,6 @@ data %>%
 ggsave('scores.png',
        bg = 'white',
        width = 4,
-       height = 7,
+       height = 9,
        units = 'in')
 ```
