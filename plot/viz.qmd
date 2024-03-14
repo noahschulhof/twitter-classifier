@@ -35,16 +35,18 @@ data %>%
   theme_minimal() +
   theme(axis.text.x = element_text(angle = -45,
                                    face = 'bold'),
+        axis.title = element_text(size = 14),
         strip.text = element_text(face = 'bold'),
         strip.background = element_rect(fill = 'grey90'),
-        plot.title = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5,
+                                  size = 17),
         legend.position = 'top',
         legend.direction = 'horizontal',
         legend.title = element_text(size = 10),
         legend.text = element_text(size = 10),
         legend.key.size = unit(1,
                                'lines')) +
-  labs(title = 'Evaluation Scores by Metric, Model,\nand Subset',
+  labs(title = 'Evaluation Scores by Metric,\nModel, and Subset',
        y = 'Score (%)',
        fill = 'Subset')
 
