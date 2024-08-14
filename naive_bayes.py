@@ -1,17 +1,15 @@
-import pandas as pd
 import math
 from collections import defaultdict
 from sklearn.model_selection import train_test_split
 
 class NaiveBayesClassifier:
 
-    def __init__(self, data):
-        self.data = pd.read_csv(data)
+    def __init__(self, train_data, test_data):
+        self.train_data = train_data
+        self.test_data = test_data
 
-        self.classes = self.data['target'].unique()
+        self.classes = self.train_data['target'].unique()
         self.class_words = {}
-
-        self.train_data, self.test_data = train_test_split(self.data, test_size = 0.2, random_state = 1)
 
         self.vocabulary = set([])
         self.logprior = {}
@@ -50,8 +48,5 @@ class NaiveBayesClassifier:
         return max(class_scores, key = class_scores.get)
     
 
-    def predict(self, subset = 'test'):
-        if subset == 'test':
-            return self.test_data['text'].apply(lambda x: self.predict_doc(x))
-        
-        return self.train_data['text'].apply(lambda x: self.predict_doc(x))
+    def predict(self, data):
+        return data['text'].map(self.predict_doc)
